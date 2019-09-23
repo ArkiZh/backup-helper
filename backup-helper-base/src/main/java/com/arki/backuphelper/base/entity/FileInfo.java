@@ -47,8 +47,8 @@ public class FileInfo {
         if (!this.exists) {
             return;
         }
-        this.type = file.isDirectory() ? "dir" : file.isFile() ? "entity" : "NotDirectoryNotFile";
-        if ("entity".equals(this.type)) {
+        this.type = file.isDirectory() ? "dir" : file.isFile() ? "file" : "NotDirectoryNotFile";
+        if ("file".equals(this.type)) {
             if (sizeFlag) {
                 this.size = file.length();
             }
@@ -66,7 +66,7 @@ public class FileInfo {
     }
 
 
-    // entity name
+    // file name
     private String name;
     // extension name
     private String extension;
@@ -74,7 +74,7 @@ public class FileInfo {
     private String canonicalPath;
 
     private boolean exists;
-    // entity or dir
+    // file or dir
     private String type;
     // size in bit
     private long size;
@@ -109,8 +109,8 @@ public class FileInfo {
     }
 
     public String getType() {
-        if (!"entity".equals(this.type) && !"dir".equals(this.type)) {
-            throw new RuntimeException("Unexpected entity type:" + this.type + " Path:" + this.getCanonicalPath());
+        if (!"file".equals(this.type) && !"dir".equals(this.type)) {
+            throw new RuntimeException("Unexpected file type:" + this.type + " Path:" + this.getCanonicalPath());
         }
         return type;
     }
