@@ -10,12 +10,6 @@ import java.util.List;
 
 public class FileInfo {
 
-    public static void main(String[] args) {
-        File file = new File("C:/360Downloads");
-        FileInfo fileInfo = new FileInfo(file, null,true, true, false);
-        System.out.println(fileInfo);
-    }
-
     public FileInfo(File file) {
         this(file,null,false, false, false);
     }

@@ -52,6 +52,26 @@ public class FileUtil {
         return md5;
     }
 
+    public static void deleteFileOrDir(File file) {
+        if (file.exists()) {
+            boolean isDirectory = file.isDirectory();
+            if (isDirectory) {
+                File[] children = file.listFiles();
+                if (children != null) {
+                    for (File child : children) {
+                        deleteFileOrDir(child);
+                    }
+                }
+            }
+            if (file.delete()) {
+                System.out.println((isDirectory ? "Directory" : "File") + " deleted: " + file.getAbsolutePath());
+            } else {
+                System.out.println((isDirectory ? "Directory" : "File") + " can't be deleted: " + file.getAbsolutePath());
+            }
+
+        }
+    }
+
     public static boolean[] copyFileByPath(String originDir, String backupDir, String[] filePaths, boolean[] overwriteFlag) {
         boolean[] results = new boolean[filePaths.length];
         for (int i = 0; i < filePaths.length; i++) {

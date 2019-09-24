@@ -1,12 +1,16 @@
 package com.arki.backuphelper.gui.action;
 
+import com.arki.backuphelper.base.entity.Difference;
+import com.arki.backuphelper.base.utils.FileUtil;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
 
 public class BackupDeleteFilesItemAction implements ActionListener {
-    private final LayoutAbsoluteFrame frame;
+    private LayoutAbsoluteFrame frame;
 
     public BackupDeleteFilesItemAction(LayoutAbsoluteFrame frame) {
         this.frame = frame;
@@ -14,7 +18,10 @@ public class BackupDeleteFilesItemAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO
-        System.out.println("Backup delete files. TODO.");
+        List<Difference> differenceList = this.frame.getBackupResultList().getSelectedValuesList();
+        for (Difference d : differenceList) {
+            System.out.println("Deleting: " + d.getFileInfo().getCanonicalPath());
+            FileUtil.deleteFileOrDir(new File(d.getFileInfo().getCanonicalPath()));
+        }
     }
 }

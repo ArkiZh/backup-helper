@@ -36,15 +36,17 @@ public class LayoutAbsoluteFrame extends JFrame{
     private final DifferenceJList originResultList = new DifferenceJList();
     private final JScrollPane originResultScrollPane = new JScrollPane();
     private final JPopupMenu originResultPopupMenu = new JPopupMenu();
-    private final JMenuItem originSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side.");
-    private final JMenuItem originShowFileDetailsItem = new JMenuItem("Show file details.");
-    private final JMenuItem originDeleteFilesItem = new JMenuItem("Delete selected files.");
+    private final JMenuItem originSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side");
+    private final JMenuItem originOpenCurrentFolderItem = new JMenuItem("Open folders of selected files");
+    private final JMenuItem originShowFileDetailsItem = new JMenuItem("Show details of selected files");
+    private final JMenuItem originDeleteFilesItem = new JMenuItem("Delete selected files");
     private final DifferenceJList backupResultList = new DifferenceJList();
     private final JScrollPane backupResultScrollPane = new JScrollPane();
     private final JPopupMenu backupResultPopupMenu = new JPopupMenu();
-    private final JMenuItem backupSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side.");
-    private final JMenuItem backupShowFileDetailsItem = new JMenuItem("Show file details.");
-    private final JMenuItem backupDeleteFilesItem = new JMenuItem("Delete selected files.");
+    private final JMenuItem backupSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side");
+    private final JMenuItem backupOpenCurrentFolderItem = new JMenuItem("Open folders of selected files");
+    private final JMenuItem backupShowFileDetailsItem = new JMenuItem("Show details of selected files");
+    private final JMenuItem backupDeleteFilesItem = new JMenuItem("Delete selected files");
 
     public LayoutAbsoluteFrame() {
 
@@ -115,6 +117,7 @@ public class LayoutAbsoluteFrame extends JFrame{
         // Result area. Origin
         originResultList.setVisibleRowCount(20);
         originResultPopupMenu.add(originSynchronizeFilesItem);
+        originResultPopupMenu.add(originOpenCurrentFolderItem);
         originResultPopupMenu.add(originShowFileDetailsItem);
         originResultPopupMenu.add(originDeleteFilesItem);
         originResultList.setComponentPopupMenu(originResultPopupMenu);
@@ -126,6 +129,7 @@ public class LayoutAbsoluteFrame extends JFrame{
         // Result area. Backup
         backupResultList.setVisibleRowCount(20);
         backupResultPopupMenu.add(backupSynchronizeFilesItem);
+        backupResultPopupMenu.add(backupOpenCurrentFolderItem);
         backupResultPopupMenu.add(backupShowFileDetailsItem);
         backupResultPopupMenu.add(backupDeleteFilesItem);
         backupResultList.setComponentPopupMenu(backupResultPopupMenu);
@@ -273,6 +277,14 @@ public class LayoutAbsoluteFrame extends JFrame{
 
     public JMenuItem getBackupDeleteFilesItem() {
         return backupDeleteFilesItem;
+    }
+
+    public JMenuItem getOriginOpenCurrentFolderItem() {
+        return originOpenCurrentFolderItem;
+    }
+
+    public JMenuItem getBackupOpenCurrentFolderItem() {
+        return backupOpenCurrentFolderItem;
     }
 
     public static class DifferenceJList extends JList<Difference> {

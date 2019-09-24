@@ -9,7 +9,7 @@ import java.util.List;
 
 public class FileSynchronizer {
     public static void synchronizeFiles(String originDir, String targetDir, List<Difference> differenceList) {
-        System.out.println("Synchronizing files: ");
+        System.out.println("Synchronizing files: " + originDir + " -> " + targetDir);
         String[] relativePaths = new String[differenceList.size()];
         boolean[] overwriteFlag = new boolean[differenceList.size()];
         for (int i = 0; i < differenceList.size(); i++) {
@@ -24,7 +24,7 @@ public class FileSynchronizer {
                 originDirCanonical = new File(originDir).getAbsolutePath();
             }
             String relativePath = canonicalPath.substring(originDirCanonical.length());
-            System.out.println("Origin path -> relative path: " + relativePath);
+            System.out.println("File: " + relativePath);
             relativePaths[i] = relativePath;
 
         }
