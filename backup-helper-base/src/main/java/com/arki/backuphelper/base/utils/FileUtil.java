@@ -68,7 +68,8 @@ public class FileUtil {
             } else {
                 System.out.println((isDirectory ? "Directory" : "File") + " can't be deleted: " + file.getAbsolutePath());
             }
-
+        } else {
+            System.out.println("File not exist: " + file.getAbsolutePath());
         }
     }
 

@@ -51,7 +51,7 @@ public class LayoutAbsoluteFrame extends JFrame{
     public LayoutAbsoluteFrame() {
 
         JFrame frame = this;
-        frame.setTitle("Folder Compare");
+        frame.setTitle("Backup Helper: easy to compare two folders.    -- by ArkiZh");
         setBoundsByCell(frame,15,5,45,27);
         frame.setBackground(new Color(200, 200, 200));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
