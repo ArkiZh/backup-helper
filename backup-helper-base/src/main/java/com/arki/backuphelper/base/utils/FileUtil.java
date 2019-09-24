@@ -63,7 +63,7 @@ public class FileUtil {
     }
 
     public static boolean copyFileOrDir(File origin, File target, CopyOption copyOption) {
-        System.out.println("Copy from " + origin.getAbsolutePath() + " to " + target.getAbsolutePath());
+        System.out.println("Copying: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
         if (origin.isDirectory()) {
             copyDirectory(origin, target, copyOption.copyDate, copyOption.overwrite);
         } else {
@@ -94,19 +94,20 @@ public class FileUtil {
         }
         // Check target directory.
         if (target == null) {
-            throw new BaseException("Target directory should not be null.");
+            throw new BaseException("Target directory should not be null!");
         }
 
         String originCanonicalPath = getCanonicalPath(origin);
         String targetCanonicalPath = getCanonicalPath(target);
         if (targetCanonicalPath.startsWith(originCanonicalPath)) {
-            throw new BaseException("The target dir is sub-dir of origin dir.");
+            throw new BaseException("Can't copy: The target dir is sub-dir of origin dir!");
         }
         boolean newDir=false;
         if (!target.exists() || !target.isDirectory()) {
             if (!target.mkdirs()) {
                 throw new BaseException("Can't create directory: " + targetCanonicalPath);
             }
+            System.out.println("Directory created: " + targetCanonicalPath);
             newDir = true;
         }
         // Copy content.
@@ -119,6 +120,8 @@ public class FileUtil {
                     copyFile(file, new File(target, file.getName()), copyDate, overwrite);
                 }
             }
+        } else {
+            throw new BaseException("Failed to list directory: " + origin.getAbsolutePath());
         }
 
         if (newDir && copyDate) {
@@ -143,6 +146,7 @@ public class FileUtil {
                     throw new BaseException("Have no privilege to write the target file: " + target.getAbsolutePath());
                 }
             } else {
+                System.out.println("Skip existing file: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
                 return;
             }
         } else {
@@ -151,6 +155,7 @@ public class FileUtil {
                 if (!mkdirs) {
                     throw new BaseException("Can't create dir: " + target.getParentFile().getAbsolutePath());
                 }
+                System.out.println("Directory created when copying file: " + target.getAbsolutePath());
             }
             doCopyFile(origin, target, copyDate);
 
@@ -170,6 +175,7 @@ public class FileUtil {
 
     private static void doCopyFile(File origin, File target, boolean copyDate) {
         copyByBufferedStream(origin, target);
+        System.out.println("File copied: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
         if (copyDate) {
             copyTimeAttributes(origin, target);
         }

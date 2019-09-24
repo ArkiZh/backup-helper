@@ -2,9 +2,9 @@ package com.arki.backuphelper.gui.action;
 
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
-import com.arki.backuphelper.base.listener.RecordDifferenceListener;
 import com.arki.backuphelper.base.function.FolderCompare;
-import com.arki.backuphelper.base.listener.WarnInfoListener;
+import com.arki.backuphelper.gui.callback.RecordDifferenceCallback;
+import com.arki.backuphelper.gui.callback.WarnInfoCallback;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 
 import javax.swing.*;
@@ -98,41 +98,8 @@ public class ScanButtionAction implements ActionListener {
         FileInfo originFileInfo = new FileInfo(originFile, useFileSizeFlag, useFileMD5Flag);
         FileInfo backupFileInfo = new FileInfo(backupFile, useFileSizeFlag, useFileMD5Flag);
 
-        WarnInfoListener warnInfoListener = new WarnInfoListener() {
-            @Override
-            public void showWarnInfo(String warnInfo) {
-                frame.getWarnInfoLabel().setText(warnInfo);
-            }
-        };
-
-        RecordDifferenceListener recordDifferenceListener = new RecordDifferenceListener() {
-            @Override
-            public void recordDiffenence(Difference difference) {
-                recordDifferenceToPane(difference);
-            }
-        };
-
-        FolderCompare folderCompare = new FolderCompare(warnInfoListener, recordDifferenceListener);
+        FolderCompare folderCompare = new FolderCompare(new WarnInfoCallback(this.frame), new RecordDifferenceCallback(this.frame));
         folderCompare.compareFileInfo(originFileInfo,backupFileInfo,useFileSizeFlag,useFileMD5Flag);
     }
 
-
-    private void recordDifferenceToPane(Difference difference) {
-        LayoutAbsoluteFrame.DifferenceJList jList;
-        int camp = difference.getCamp();
-        if (camp == Difference.CAMP_ORIGIN) {
-            jList = frame.getOriginResultList();
-        } else if (camp == Difference.CAMP_BACKUP) {
-            jList = frame.getBackupResultList();
-        } else {
-            throw new RuntimeException("Unexpected camp!");
-        }
-        ListModel<Difference> model = jList.getModel();
-        Difference[] content = new Difference[model.getSize() + 1];
-        for (int i = 0; i < model.getSize(); i++) {
-            content[i] = model.getElementAt(i);
-        }
-        content[model.getSize()] = difference;
-        jList.setListData(content);
-    }
 }

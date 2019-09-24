@@ -9,7 +9,7 @@ import java.util.List;
 
 public class FileSynchronizer {
     public static void synchronizeFiles(String originDir, String targetDir, List<Difference> differenceList) {
-        System.out.println("Synchronize files: ");
+        System.out.println("Synchronizing files: ");
         String[] relativePaths = new String[differenceList.size()];
         boolean[] overwriteFlag = new boolean[differenceList.size()];
         for (int i = 0; i < differenceList.size(); i++) {

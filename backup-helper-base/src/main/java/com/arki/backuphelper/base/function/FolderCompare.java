@@ -7,9 +7,7 @@ import com.arki.backuphelper.base.listener.WarnInfoListener;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FolderCompare {
 
@@ -68,12 +66,14 @@ public class FolderCompare {
                 separateFileAndDir(new File(backup.getCanonicalPath()), backupChildrenDir, backupChildrenFile);
 
                 // Step 2: Compare the same type of children.
-                Map<ArrayList<String>, ArrayList<String>> compareMap = new HashMap<>();
-                compareMap.put(originChildrenDir, backupChildrenDir);
-                compareMap.put(originChildrenFile, backupChildrenFile);
-                for (Map.Entry<ArrayList<String>, ArrayList<String>> entry : compareMap.entrySet()) {
-                    ArrayList<String> originChildren = entry.getKey();
-                    ArrayList<String> backupChildren = entry.getValue();
+                ArrayList<String>[][] compareArray = new ArrayList[2][2];
+                compareArray[0][0] = originChildrenDir;
+                compareArray[0][1] = backupChildrenDir;
+                compareArray[1][0] = originChildrenFile;
+                compareArray[1][1] = backupChildrenFile;
+                for (ArrayList<String>[] pair : compareArray) {
+                    ArrayList<String> originChildren = pair[0];
+                    ArrayList<String> backupChildren = pair[1];
                     // Iterate children of origin.
                     for (int i = 0; i < originChildren.size(); i++) {
                         String originChildName = originChildren.get(i);
