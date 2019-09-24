@@ -1,22 +1,15 @@
 package com.arki.backuphelper.gui.layiout;
 
 import com.arki.backuphelper.base.entity.Difference;
-import com.arki.backuphelper.base.function.FileSynchronizer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class LayoutAbsolute extends JFrame{
+public class LayoutAbsoluteFrame extends JFrame{
 
 
-    private final JFrame frame = this;
     private final GridBagConstraints constraints = new GridBagConstraints();
     private final JLabel originDirLabel = new JLabel("Origin directory:");
     private final JTextField originDirText = new JTextField(25);
@@ -42,11 +35,20 @@ public class LayoutAbsolute extends JFrame{
     private final JLabel backupResultInfoLabel = new JLabel("Backup redundant:");
     private final DifferenceJList originResultList = new DifferenceJList();
     private final JScrollPane originResultScrollPane = new JScrollPane();
+    private final JPopupMenu originResultPopupMenu = new JPopupMenu();
+    private final JMenuItem originSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side.");
+    private final JMenuItem originShowFileDetailsItem = new JMenuItem("Show file details.");
+    private final JMenuItem originDeleteFilesItem = new JMenuItem("Delete selected files.");
     private final DifferenceJList backupResultList = new DifferenceJList();
     private final JScrollPane backupResultScrollPane = new JScrollPane();
+    private final JPopupMenu backupResultPopupMenu = new JPopupMenu();
+    private final JMenuItem backupSynchronizeFilesItem = new JMenuItem("Synchronize selected files to the other side.");
+    private final JMenuItem backupShowFileDetailsItem = new JMenuItem("Show file details.");
+    private final JMenuItem backupDeleteFilesItem = new JMenuItem("Delete selected files.");
 
-    public LayoutAbsolute() {
+    public LayoutAbsoluteFrame() {
 
+        JFrame frame = this;
         frame.setTitle("Folder Compare");
         setBoundsByCell(frame,15,5,45,27);
         frame.setBackground(new Color(200, 200, 200));
@@ -94,27 +96,9 @@ public class LayoutAbsolute extends JFrame{
         //------------------------ Row start------------------------------
         // Origin directory chooser.
         originDirChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        originDirChooserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int state = originDirChooser.showOpenDialog(null);
-                if (state == JFileChooser.APPROVE_OPTION) {
-                    originDirText.setText(originDirChooser.getSelectedFile().toString());
-                }
-            }
-        });
 
         // Backup directory chooser.
         backupDirChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        backupDirChooserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int state = backupDirChooser.showOpenDialog(null);
-                if (state == JFileChooser.APPROVE_OPTION) {
-                    backupDirText.setText(backupDirChooser.getSelectedFile().toString());
-                }
-            }
-        });
         //------------------------ Row end  ------------------------------
 
 
@@ -130,20 +114,10 @@ public class LayoutAbsolute extends JFrame{
         //------------------------ Row start------------------------------
         // Result area. Origin
         originResultList.setVisibleRowCount(20);
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem synchorizeFilesItemOrigin = new JMenuItem("Synchronize selected files to the other side.");
-        synchorizeFilesItemOrigin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                List<Difference> differenceList = originResultList.getSelectedValuesList();
-                String originDir = originDirText.getText();
-                String backupDir = backupDirText.getText();
-
-                FileSynchronizer.synchronizeFiles(originDir, backupDir, differenceList);
-            }
-        });
-        popupMenu.add(synchorizeFilesItemOrigin);
-        originResultList.setComponentPopupMenu(popupMenu);
+        originResultPopupMenu.add(originSynchronizeFilesItem);
+        originResultPopupMenu.add(originShowFileDetailsItem);
+        originResultPopupMenu.add(originDeleteFilesItem);
+        originResultList.setComponentPopupMenu(originResultPopupMenu);
 
         originResultScrollPane.setViewportView(originResultList);
         originResultScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -151,6 +125,10 @@ public class LayoutAbsolute extends JFrame{
 
         // Result area. Backup
         backupResultList.setVisibleRowCount(20);
+        backupResultPopupMenu.add(backupSynchronizeFilesItem);
+        backupResultPopupMenu.add(backupShowFileDetailsItem);
+        backupResultPopupMenu.add(backupDeleteFilesItem);
+        backupResultList.setComponentPopupMenu(backupResultPopupMenu);
 
         backupResultScrollPane.setViewportView(backupResultList);
         backupResultScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -257,12 +235,44 @@ public class LayoutAbsolute extends JFrame{
         return originResultScrollPane;
     }
 
+    public JPopupMenu getOriginResultPopupMenu() {
+        return originResultPopupMenu;
+    }
+
+    public JMenuItem getOriginSynchronizeFilesItem() {
+        return originSynchronizeFilesItem;
+    }
+
+    public JMenuItem getOriginShowFileDetailsItem() {
+        return originShowFileDetailsItem;
+    }
+
+    public JMenuItem getOriginDeleteFilesItem() {
+        return originDeleteFilesItem;
+    }
+
     public DifferenceJList getBackupResultList() {
         return backupResultList;
     }
 
     public JScrollPane getBackupResultScrollPane() {
         return backupResultScrollPane;
+    }
+
+    public JPopupMenu getBackupResultPopupMenu() {
+        return backupResultPopupMenu;
+    }
+
+    public JMenuItem getBackupSynchronizeFilesItem() {
+        return backupSynchronizeFilesItem;
+    }
+
+    public JMenuItem getBackupShowFileDetailsItem() {
+        return backupShowFileDetailsItem;
+    }
+
+    public JMenuItem getBackupDeleteFilesItem() {
+        return backupDeleteFilesItem;
     }
 
     public static class DifferenceJList extends JList<Difference> {

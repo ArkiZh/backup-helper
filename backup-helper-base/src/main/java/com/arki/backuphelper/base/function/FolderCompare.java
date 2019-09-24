@@ -2,6 +2,8 @@ package com.arki.backuphelper.base.function;
 
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
+import com.arki.backuphelper.base.listener.RecordDifferenceListener;
+import com.arki.backuphelper.base.listener.WarnInfoListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,10 +14,10 @@ import java.util.Map;
 public class FolderCompare {
 
     private WarnInfoListener warnInfoListener;
-    private FindDifferenceListener findDifferenceListener;
-    public FolderCompare(WarnInfoListener warnInfoListener, FindDifferenceListener findDifferenceListener) {
+    private RecordDifferenceListener recordDifferenceListener;
+    public FolderCompare(WarnInfoListener warnInfoListener, RecordDifferenceListener recordDifferenceListener) {
         this.warnInfoListener = warnInfoListener;
-        this.findDifferenceListener = findDifferenceListener;
+        this.recordDifferenceListener = recordDifferenceListener;
     }
 
     /**
@@ -41,16 +43,16 @@ public class FolderCompare {
                 if (useSize) {
                     if (origin.getSize() != backup.getSize()) {
                         // Find different size.
-                        this.findDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
-                        this.findDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
+                        this.recordDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
+                        this.recordDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
                         return;
                     }
                 }
                 if (useMD5) {
                     if (!origin.getMd5().equals(backup.getMd5())) {
                         // Find different MD5.
-                        this.findDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
-                        this.findDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
+                        this.recordDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
+                        this.recordDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
                         return;
                     }
                 }
@@ -91,13 +93,13 @@ public class FolderCompare {
                             backupChildren.remove(hitIndex);
                         } else {
                             // Only the origin has this file. Record it.
-                            this.findDifferenceListener.recordDiffenence(new Difference(originChild, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
+                            this.recordDifferenceListener.recordDiffenence(new Difference(originChild, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
                         }
                     }
                     // After the compare according to name and remove, only the backup has these files.
                     for (int i = 0; i < backupChildren.size(); i++) {
                         FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), backupChildren.get(i)), backup, useSize, false, false);
-                        this.findDifferenceListener.recordDiffenence(new Difference(backupChild, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
+                        this.recordDifferenceListener.recordDiffenence(new Difference(backupChild, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
                     }
                 }
             } else {

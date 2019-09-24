@@ -1,4 +1,4 @@
-package com.arki.backuphelper.base.function;
+package com.arki.backuphelper.base.listener;
 
 public interface WarnInfoListener {
     void showWarnInfo(String warnInfo);

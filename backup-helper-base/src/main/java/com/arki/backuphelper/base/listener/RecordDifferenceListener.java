@@ -1,7 +1,7 @@
-package com.arki.backuphelper.base.function;
+package com.arki.backuphelper.base.listener;
 
 import com.arki.backuphelper.base.entity.Difference;
 
-public interface FindDifferenceListener {
+public interface RecordDifferenceListener {
     void recordDiffenence(Difference difference);
 }
