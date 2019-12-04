@@ -14,5 +14,7 @@ public class WarnInfoCallback implements WarnInfoListener {
     @Override
     public void showWarnInfo(String warnInfo) {
         frame.getWarnInfoLabel().setText(warnInfo);
+        //Rectangle bounds = frame.getWarnInfoLabel().getBounds();
+        //frame.getWarnInfoLabel().paintImmediately(0, 0, bounds.width, bounds.height);
     }
 }

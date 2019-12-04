@@ -27,16 +27,21 @@ public class ScanButtionAction implements ActionListener {
 
         // start compare.
         JTextField originDirText = frame.getOriginDirText();
-        String originPath = originDirText.getText();
+        final String originPath = originDirText.getText();
         JTextField backupDirText = frame.getBackupDirText();
-        String backupPath = backupDirText.getText();
-        boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
-        boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
+        final String backupPath = backupDirText.getText();
+        final boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
+        final boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
 
-        startCompare(originPath, backupPath,useFileSizeFlag,useFileMD5Flag);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                startCompare(originPath, backupPath,useFileSizeFlag,useFileMD5Flag);
+                resetScanOptions();
+            }
+        }).start();
 
         // reset start options.
-        resetScanOptions();
 
     }
 

@@ -315,7 +315,7 @@ public class LayoutAbsoluteFrame extends JFrame{
                         } else if (difference.getCode() == Difference.DIFF_MD5) {
                             jLabel.setBackground(Color.RED);
                         } else if ("dir".equals(difference.getFileInfo().getType())) {
-                            jLabel.setBackground(Color.orange);
+                            jLabel.setBackground(new Color(255,232,151));
                         } else {
                             jLabel.setBackground(Color.WHITE);
                         }
