@@ -14,6 +14,7 @@ public class ActionBinder {
         this.frame.getOriginDirChooserButton().addActionListener(new OriginDirChooserAction(this.frame));
         this.frame.getBackupDirChooserButton().addActionListener(new BackupDirChooserAction(this.frame));
         this.frame.getScanButton().addActionListener(new ScanButtionAction(this.frame));
+        this.frame.getCancelButton().addActionListener(new CancelButtonAction());
         this.frame.getOriginSynchronizeFilesItem().addActionListener(new OriginSynchronizeFilesItemAction(this.frame));
         this.frame.getOriginOpenCurrentFolderItem().addActionListener(new OriginOpenCurrentFolderItemAction(this.frame));
         this.frame.getOriginShowFileDetailsItem().addActionListener(new OriginShowFileDetailsItemAction(this.frame));

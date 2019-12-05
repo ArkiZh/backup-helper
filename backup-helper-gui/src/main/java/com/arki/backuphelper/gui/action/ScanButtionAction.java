@@ -42,12 +42,12 @@ public class ScanButtionAction implements ActionListener {
 
         ThreadUtil.submitTask(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
                 resetScanOptions();
                 return "DONE";
             }
-        });
+        }, ThreadUtil.ThreadType.SCAN);
 
         // reset start options.
 
