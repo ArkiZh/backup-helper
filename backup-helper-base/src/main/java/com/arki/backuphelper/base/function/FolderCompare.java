@@ -2,20 +2,44 @@ package com.arki.backuphelper.base.function;
 
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
-import com.arki.backuphelper.base.listener.RecordDifferenceListener;
-import com.arki.backuphelper.base.listener.WarnInfoListener;
+import com.arki.backuphelper.base.callback.GuiCallback;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FolderCompare {
 
-    private WarnInfoListener warnInfoListener;
-    private RecordDifferenceListener recordDifferenceListener;
-    public FolderCompare(WarnInfoListener warnInfoListener, RecordDifferenceListener recordDifferenceListener) {
-        this.warnInfoListener = warnInfoListener;
-        this.recordDifferenceListener = recordDifferenceListener;
+    public enum CompareStatus{
+        SUCCESS(1, "Comparision is done successfully."),
+        INTERRUPTED_BY_INTENTION(-1, "The comparision is interrupted, according to the preconditions."),
+        INTERRUPTED_UNEXPECTED(-2, "The comparision is interrupted unexpected!");
+
+        private int code;
+        private String info;
+
+        CompareStatus(int code, String info) {
+            this.code = code;
+            this.info = info;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+    }
+
+    private GuiCallback<String> showWarnInfoCallback;
+    private GuiCallback<String> showProcessInfoCallback;
+    private GuiCallback<Difference> showDifferenceScannedCallback;
+    public FolderCompare(Map<GuiCallback.RecordType, GuiCallback> guiCallBacks) {
+        this.showWarnInfoCallback = guiCallBacks.get(GuiCallback.RecordType.WARN_INFO);
+        this.showProcessInfoCallback = guiCallBacks.get(GuiCallback.RecordType.PROCESS_INFO);
+        this.showDifferenceScannedCallback = guiCallBacks.get(GuiCallback.RecordType.DIFFERENCE_SCANNED);
     }
 
     /**
@@ -25,33 +49,38 @@ public class FolderCompare {
      * @param backup
      * @param useSize
      * @param useMD5
+     *
+     * @return status of comparison
+     *
      */
-    public void compareFileInfo(FileInfo origin, FileInfo backup, boolean useSize, boolean useMD5) {
+    public CompareStatus compareFileInfo(FileInfo origin, FileInfo backup, boolean useSize, boolean useMD5) {
+
+        this.showProcessInfoCallback.record("Comparing: " + origin.getCanonicalPath() + " <=====> " + backup.getCanonicalPath());
 
         if (!origin.sameType(backup)) {
             // origin and backup are not the same type.
             String warnInfo = "dir".equals(origin.getType())
                     ? "Warning: The origin is a directory while the backup is a file"
                     : "Warning: The origin is a file while the backup is a directory";
-            this.warnInfoListener.showWarnInfo(warnInfo);
-            return;
+            this.showWarnInfoCallback.record((warnInfo));
+            return CompareStatus.INTERRUPTED_BY_INTENTION;
         }else{
             if ("file".equals(origin.getType())) {
                 // Compare files
                 if (useSize) {
                     if (origin.getSize() != backup.getSize()) {
                         // Find different size.
-                        this.recordDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
-                        this.recordDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
-                        return;
+                        this.showDifferenceScannedCallback.record(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
+                        this.showDifferenceScannedCallback.record(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
+                        return CompareStatus.SUCCESS;
                     }
                 }
                 if (useMD5) {
                     if (!origin.getMd5().equals(backup.getMd5())) {
                         // Find different MD5.
-                        this.recordDifferenceListener.recordDiffenence(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
-                        this.recordDifferenceListener.recordDiffenence(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
-                        return;
+                        this.showDifferenceScannedCallback.record(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
+                        this.showDifferenceScannedCallback.record(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
+                        return CompareStatus.SUCCESS;
                     }
                 }
             } else if ("dir".equals(origin.getType())) {
@@ -88,24 +117,28 @@ public class FolderCompare {
                             }
                             // Compare the same named files.
                             FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), originChildName), backup, useSize, useMD5, false);
-                            compareFileInfo(originChild, backupChild, useSize, useMD5);
+                            CompareStatus status = compareFileInfo(originChild, backupChild, useSize, useMD5);
+                            if (status != CompareStatus.SUCCESS) {
+                                return status;
+                            }
                             // Remove the file of backup since it has been compared.
                             backupChildren.remove(hitIndex);
                         } else {
                             // Only the origin has this file. Record it.
-                            this.recordDifferenceListener.recordDiffenence(new Difference(originChild, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
+                            this.showDifferenceScannedCallback.record(new Difference(originChild, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
                         }
                     }
                     // After the compare according to name and remove, only the backup has these files.
                     for (int i = 0; i < backupChildren.size(); i++) {
                         FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), backupChildren.get(i)), backup, useSize, false, false);
-                        this.recordDifferenceListener.recordDiffenence(new Difference(backupChild, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
+                        this.showDifferenceScannedCallback.record(new Difference(backupChild, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
                     }
                 }
             } else {
                 throw new RuntimeException("Unexpected file type.");
             }
         }
+        return CompareStatus.SUCCESS;
     }
 
     private void separateFileAndDir(File dirAsParent, List<String> dirList, List<String> fileList) {

@@ -1,16 +1,23 @@
 package com.arki.backuphelper.gui.action;
 
+import com.arki.backuphelper.base.callback.GuiCallback;
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
 import com.arki.backuphelper.base.function.FolderCompare;
-import com.arki.backuphelper.gui.callback.RecordDifferenceCallback;
+import com.arki.backuphelper.gui.callback.DifferenceScannedCallback;
+import com.arki.backuphelper.gui.callback.ProcessInfoCallback;
+import com.arki.backuphelper.gui.callback.TipInfoCallback;
 import com.arki.backuphelper.gui.callback.WarnInfoCallback;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
+import com.arki.backuphelper.gui.util.ThreadUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class ScanButtionAction implements ActionListener {
 
@@ -33,13 +40,14 @@ public class ScanButtionAction implements ActionListener {
         final boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
         final boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
 
-        new Thread(new Runnable() {
+        ThreadUtil.submitTask(new Callable<String>() {
             @Override
-            public void run() {
-                startCompare(originPath, backupPath,useFileSizeFlag,useFileMD5Flag);
+            public String call() throws Exception {
+                startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
                 resetScanOptions();
+                return "DONE";
             }
-        }).start();
+        });
 
         // reset start options.
 
@@ -103,8 +111,15 @@ public class ScanButtionAction implements ActionListener {
         FileInfo originFileInfo = new FileInfo(originFile, useFileSizeFlag, useFileMD5Flag);
         FileInfo backupFileInfo = new FileInfo(backupFile, useFileSizeFlag, useFileMD5Flag);
 
-        FolderCompare folderCompare = new FolderCompare(new WarnInfoCallback(this.frame), new RecordDifferenceCallback(this.frame));
-        folderCompare.compareFileInfo(originFileInfo,backupFileInfo,useFileSizeFlag,useFileMD5Flag);
+        Map<GuiCallback.RecordType, GuiCallback> guiCallbacks = new HashMap<>();
+        guiCallbacks.put(GuiCallback.RecordType.TIP_INFO, new TipInfoCallback(frame));
+        guiCallbacks.put(GuiCallback.RecordType.WARN_INFO, new WarnInfoCallback(frame));
+        guiCallbacks.put(GuiCallback.RecordType.PROCESS_INFO, new ProcessInfoCallback(frame));
+        guiCallbacks.put(GuiCallback.RecordType.DIFFERENCE_SCANNED, new DifferenceScannedCallback(frame));
+
+        FolderCompare folderCompare = new FolderCompare(guiCallbacks);
+        FolderCompare.CompareStatus compareStatus = folderCompare.compareFileInfo(originFileInfo, backupFileInfo, useFileSizeFlag, useFileMD5Flag);
+        frame.getProcessInfoLabel().setText(compareStatus.getInfo());
     }
 
 }

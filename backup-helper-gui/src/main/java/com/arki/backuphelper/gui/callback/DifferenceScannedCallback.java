@@ -1,21 +1,21 @@
 package com.arki.backuphelper.gui.callback;
 
 import com.arki.backuphelper.base.entity.Difference;
-import com.arki.backuphelper.base.listener.RecordDifferenceListener;
+import com.arki.backuphelper.base.callback.GuiCallback;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 
 import javax.swing.*;
 
-public class RecordDifferenceCallback implements RecordDifferenceListener {
+public class DifferenceScannedCallback implements GuiCallback<Difference> {
 
     private final LayoutAbsoluteFrame frame;
 
-    public RecordDifferenceCallback(LayoutAbsoluteFrame frame) {
+    public DifferenceScannedCallback(LayoutAbsoluteFrame frame) {
         this.frame = frame;
     }
 
     @Override
-    public void recordDiffenence(Difference difference) {
+    public void record(Difference difference) {
         LayoutAbsoluteFrame.DifferenceJList jList;
         int camp = difference.getCamp();
         if (camp == Difference.CAMP_ORIGIN) {
@@ -32,6 +32,6 @@ public class RecordDifferenceCallback implements RecordDifferenceListener {
         }
         content[model.getSize()] = difference;
         jList.setListData(content);
-    }
 
+    }
 }

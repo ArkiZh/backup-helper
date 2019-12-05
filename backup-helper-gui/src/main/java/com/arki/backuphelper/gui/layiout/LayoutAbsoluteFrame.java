@@ -27,6 +27,7 @@ public class LayoutAbsoluteFrame extends JFrame{
     private final JButton scanButton = new JButton("Scan");
     private final JButton cancelButton = new JButton("Cancel");
     private final JLabel warnInfoLabel = new JLabel();
+    private final JLabel processInfoLabel = new JLabel();
     private final JLabel resultAreaLabel = new JLabel("Scan result:");
     private final JSeparator resultAreaSeparator = new JSeparator();
     // Origin directory contains these files, while backup directory doesn't contain:
@@ -76,7 +77,9 @@ public class LayoutAbsoluteFrame extends JFrame{
         boundsMapReverse.put(new int[]{28, 7, 4, 1}, scanButton);
         boundsMapReverse.put(new int[]{35, 7, 4, 1}, cancelButton);
 
-        boundsMapReverse.put(new int[]{2, 9, 19, 1}, warnInfoLabel);
+        boundsMapReverse.put(new int[]{2, 8, 41, 1}, warnInfoLabel);
+
+        boundsMapReverse.put(new int[]{2, 9, 41, 1}, processInfoLabel);
 
         boundsMapReverse.put(new int[]{2, 11, 4, 1}, resultAreaLabel);
         boundsMapReverse.put(new int[]{6, 12, 37, 1}, resultAreaSeparator);
@@ -213,6 +216,10 @@ public class LayoutAbsoluteFrame extends JFrame{
 
     public JLabel getWarnInfoLabel() {
         return warnInfoLabel;
+    }
+
+    public JLabel getProcessInfoLabel() {
+        return processInfoLabel;
     }
 
     public JLabel getResultAreaLabel() {
