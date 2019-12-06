@@ -85,10 +85,15 @@ public class FileUtil {
 
     public static boolean copyFileOrDir(File origin, File target, CopyOption copyOption) {
         System.out.println("Copying: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
-        if (origin.isDirectory()) {
-            copyDirectory(origin, target, copyOption.copyDate, copyOption.overwrite);
-        } else {
-            copyFile(origin, target, copyOption.copyDate, copyOption.overwrite);
+        try {
+            if (origin.isDirectory()) {
+                copyDirectory(origin, target, copyOption.copyDate, copyOption.overwrite);
+            } else {
+                copyFile(origin, target, copyOption.copyDate, copyOption.overwrite);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
         return true;
     }
@@ -168,7 +173,7 @@ public class FileUtil {
                 }
             } else {
                 System.out.println("Skip existing file: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
-                return;
+                throw new BaseException("Can't copy: The target file exists and overwrite flag is false. " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
             }
         } else {
             if (!target.getParentFile().exists()) {
@@ -184,7 +189,7 @@ public class FileUtil {
 
     }
 
-    private static String getCanonicalPath(File file) {
+    public static String getCanonicalPath(File file) {
         try {
             String canonicalPath = file.getCanonicalPath();
             return canonicalPath;

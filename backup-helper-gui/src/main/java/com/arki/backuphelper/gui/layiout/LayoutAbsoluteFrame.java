@@ -23,7 +23,7 @@ public class LayoutAbsoluteFrame extends JFrame{
     private final JCheckBox fileNameCheckbox = new JCheckBox("Use file name check.");
     private final JCheckBox fileSizeCheckbox = new JCheckBox("Use file size check.");
     private final JCheckBox fileMd5Checkbox = new JCheckBox("Use MD5 check.");
-    private final JLabel tipLabel = new JLabel("Tip: todo");
+    private final JLabel tipLabel = new JLabel("Tip: You can also compare two files to check whether they have the same MD5 digest.");
     private final JButton scanButton = new JButton("Scan");
     private final JButton cancelButton = new JButton("Cancel");
     private final JLabel warnInfoLabel = new JLabel();
@@ -73,7 +73,7 @@ public class LayoutAbsoluteFrame extends JFrame{
         boundsMapReverse.put(new int[]{13, 4, 6, 1}, fileSizeCheckbox);
         boundsMapReverse.put(new int[]{20, 4, 6, 1}, fileMd5Checkbox);
 
-        boundsMapReverse.put(new int[]{2, 7, 19, 1}, tipLabel);
+        boundsMapReverse.put(new int[]{2, 7, 22, 1}, tipLabel);
         boundsMapReverse.put(new int[]{28, 7, 4, 1}, scanButton);
         boundsMapReverse.put(new int[]{35, 7, 4, 1}, cancelButton);
 

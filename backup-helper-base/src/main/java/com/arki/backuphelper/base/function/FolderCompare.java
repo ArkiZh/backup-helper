@@ -11,10 +11,12 @@ import java.util.Map;
 
 public class FolderCompare {
 
-    public enum CompareStatus{
+    public enum CompareStatus {
         SUCCESS(1, "Comparision is done successfully."),
-        INTERRUPTED_BY_INTENTION(-1, "The comparision is interrupted, according to the preconditions."),
-        INTERRUPTED_UNEXPECTED(-2, "The comparision is interrupted unexpected!");
+        INTERRUPTED_BY_CANCEL(0, "The comparision has been cancelled."),
+        INTERRUPTED_BY_INTENTION(-1, "The comparision has been interrupted, according to the preconditions."),
+        INTERRUPTED_UNEXPECTED(-2, "The comparision has been interrupted unexpected!"),
+        ;
 
         private int code;
         private String info;
@@ -55,88 +57,115 @@ public class FolderCompare {
      */
     public CompareStatus compareFileInfo(FileInfo origin, FileInfo backup, boolean useSize, boolean useMD5) {
 
+        if (Thread.currentThread().isInterrupted()) {
+            return CompareStatus.INTERRUPTED_BY_CANCEL;
+        }
+
         this.showProcessInfoCallback.record("Comparing: " + origin.getCanonicalPath() + " <=====> " + backup.getCanonicalPath());
+        try {
 
-        if (!origin.sameType(backup)) {
-            // origin and backup are not the same type.
-            String warnInfo = "dir".equals(origin.getType())
-                    ? "Warning: The origin is a directory while the backup is a file"
-                    : "Warning: The origin is a file while the backup is a directory";
-            this.showWarnInfoCallback.record((warnInfo));
-            return CompareStatus.INTERRUPTED_BY_INTENTION;
-        }else{
-            if ("file".equals(origin.getType())) {
-                // Compare files
-                if (useSize) {
-                    if (origin.getSize() != backup.getSize()) {
-                        // Find different size.
-                        this.showDifferenceScannedCallback.record(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
-                        this.showDifferenceScannedCallback.record(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
-                        return CompareStatus.SUCCESS;
+            if (!origin.sameType(backup)) {
+                // origin and backup are not the same type.
+                String warnInfo = "dir".equals(origin.getType())
+                        ? "Warning: The origin is a directory while the backup is a file"
+                        : "Warning: The origin is a file while the backup is a directory";
+                this.showWarnInfoCallback.record((warnInfo));
+                return CompareStatus.INTERRUPTED_BY_INTENTION;
+            } else {
+                if ("file".equals(origin.getType())) {
+                    // Compare files
+                    if (useSize) {
+                        if (origin.getSize() != backup.getSize()) {
+                            // Find different size.
+                            List<Difference> sizeDifferences = new ArrayList<>();
+                            sizeDifferences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
+                            sizeDifferences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
+                            this.showDifferenceScannedCallback.record(sizeDifferences);
+                            return CompareStatus.SUCCESS;
+                        }
                     }
-                }
-                if (useMD5) {
-                    if (!origin.getMd5().equals(backup.getMd5())) {
-                        // Find different MD5.
-                        this.showDifferenceScannedCallback.record(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
-                        this.showDifferenceScannedCallback.record(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
-                        return CompareStatus.SUCCESS;
+                    if (useMD5) {
+                        origin.calculateMd5();
+                        backup.calculateMd5();
+                        if (!origin.getMd5().equals(backup.getMd5())) {
+                            // Find different MD5.
+                            List<Difference> md5Differences = new ArrayList<>();
+                            md5Differences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
+                            md5Differences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
+                            this.showDifferenceScannedCallback.record(md5Differences);
+                            return CompareStatus.SUCCESS;
+                        }
                     }
-                }
-            } else if ("dir".equals(origin.getType())) {
-                // Compare directories
-                // Step 1: Separate each dir's children into dirs and files.
-                ArrayList<String> originChildrenDir = new ArrayList<>();
-                ArrayList<String> originChildrenFile = new ArrayList<>();
-                separateFileAndDir(new File(origin.getCanonicalPath()), originChildrenDir, originChildrenFile);
+                } else if ("dir".equals(origin.getType())) {
+                    // Compare directories
+                    // Step 1: Separate each dir's children into dirs and files.
+                    List<String> originChildrenDir = new ArrayList<>();
+                    List<String> originChildrenFile = new ArrayList<>();
+                    separateFileAndDir(new File(origin.getCanonicalPath()), originChildrenDir, originChildrenFile);
 
-                ArrayList<String> backupChildrenDir = new ArrayList<>();
-                ArrayList<String> backupChildrenFile = new ArrayList<>();
-                separateFileAndDir(new File(backup.getCanonicalPath()), backupChildrenDir, backupChildrenFile);
+                    List<String> backupChildrenDir = new ArrayList<>();
+                    List<String> backupChildrenFile = new ArrayList<>();
+                    separateFileAndDir(new File(backup.getCanonicalPath()), backupChildrenDir, backupChildrenFile);
 
-                // Step 2: Compare the same type of children.
-                ArrayList<String>[][] compareArray = new ArrayList[2][2];
-                compareArray[0][0] = originChildrenDir;
-                compareArray[0][1] = backupChildrenDir;
-                compareArray[1][0] = originChildrenFile;
-                compareArray[1][1] = backupChildrenFile;
-                for (ArrayList<String>[] pair : compareArray) {
-                    ArrayList<String> originChildren = pair[0];
-                    ArrayList<String> backupChildren = pair[1];
-                    // Iterate children of origin.
-                    for (int i = 0; i < originChildren.size(); i++) {
-                        String originChildName = originChildren.get(i);
-                        // Since this origin child may don't have the corresponding backup child, don't calculate md5 now. It takes much time to calculate.
-                        FileInfo originChild = new FileInfo(new File(origin.getCanonicalPath(), originChildName), origin, useSize, false, false);
-                        // Judge whether children of backup contains this origin child.
-                        int hitIndex = backupChildren.indexOf(originChildName);
-                        if (hitIndex >= 0) {
-                            // Calculate md5 and set it into md5 field.
-                            if (useMD5) {
-                                originChild.calculateMd5();
+                    // Step 2: Compare the same type of children.
+                    List<String>[][] compareArray = new ArrayList[2][2];
+                    compareArray[0][0] = originChildrenDir;
+                    compareArray[0][1] = backupChildrenDir;
+                    compareArray[1][0] = originChildrenFile;
+                    compareArray[1][1] = backupChildrenFile;
+
+                    for (List<String>[] pair : compareArray) {
+                        List<String> originChildren = pair[0];
+                        List<String> backupChildren = pair[1];
+
+                        List<String> originChildrenRedundant = new ArrayList<>();
+                        List<String> childrenToCompare = new ArrayList<>();
+
+                        // Iterate children of origin.
+                        for (int i = 0; i < originChildren.size(); i++) {
+                            String originChildName = originChildren.get(i);
+                            // Judge whether children of backup contains this origin child.
+                            int hitIndex = backupChildren.indexOf(originChildName);
+                            if (hitIndex >= 0) {
+                                // If contains, add to candidates for comparing.
+                                // And remove from backupChildren, thus the backupChildren will only contain the redundant files.
+                                childrenToCompare.add(backupChildren.remove(hitIndex));
+                            } else {
+                                originChildrenRedundant.add(originChildName);
                             }
-                            // Compare the same named files.
-                            FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), originChildName), backup, useSize, useMD5, false);
+                        }
+
+                        // Record redundant differences.
+                        List<Difference> redundantDifferences = new ArrayList<>();
+                        for (int i = 0; i < originChildrenRedundant.size(); i++) {
+                            FileInfo fileInfo = new FileInfo(new File(origin.getCanonicalPath(), originChildrenRedundant.get(i)), origin, useSize, false, false);
+                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
+                        }
+                        for (int i = 0; i < backupChildren.size(); i++) {
+                            FileInfo fileInfo = new FileInfo(new File(backup.getCanonicalPath(), backupChildren.get(i)), origin, useSize, false, false);
+                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
+                        }
+                        this.showDifferenceScannedCallback.record(redundantDifferences);
+
+                        // Compare children with the same name
+                        for (int i = 0; i < childrenToCompare.size(); i++) {
+                            String filename = childrenToCompare.get(i);
+                            // Since this origin child may not have the corresponding backup child, don't calculate md5 now. It takes much time to calculate.
+                            FileInfo originChild = new FileInfo(new File(origin.getCanonicalPath(), filename), origin, useSize, false, false);
+                            FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), filename), backup, useSize, false, false);
                             CompareStatus status = compareFileInfo(originChild, backupChild, useSize, useMD5);
                             if (status != CompareStatus.SUCCESS) {
                                 return status;
                             }
-                            // Remove the file of backup since it has been compared.
-                            backupChildren.remove(hitIndex);
-                        } else {
-                            // Only the origin has this file. Record it.
-                            this.showDifferenceScannedCallback.record(new Difference(originChild, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
                         }
                     }
-                    // After the compare according to name and remove, only the backup has these files.
-                    for (int i = 0; i < backupChildren.size(); i++) {
-                        FileInfo backupChild = new FileInfo(new File(backup.getCanonicalPath(), backupChildren.get(i)), backup, useSize, false, false);
-                        this.showDifferenceScannedCallback.record(new Difference(backupChild, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
-                    }
+                } else {
+                    throw new RuntimeException("Unexpected file type.");
                 }
-            } else {
-                throw new RuntimeException("Unexpected file type.");
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return CompareStatus.SUCCESS;
     }

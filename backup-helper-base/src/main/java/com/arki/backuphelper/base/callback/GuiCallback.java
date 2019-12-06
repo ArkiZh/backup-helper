@@ -1,5 +1,7 @@
 package com.arki.backuphelper.base.callback;
 
+import java.util.List;
+
 public interface GuiCallback<T> {
 
     enum RecordType {
@@ -7,5 +9,7 @@ public interface GuiCallback<T> {
     }
 
     void record(T content);
+
+    void record(List<T> contents);
 
 }

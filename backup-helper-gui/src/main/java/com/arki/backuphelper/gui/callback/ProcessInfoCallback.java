@@ -3,6 +3,9 @@ package com.arki.backuphelper.gui.callback;
 import com.arki.backuphelper.base.callback.GuiCallback;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 
+import javax.swing.*;
+import java.util.List;
+
 public class ProcessInfoCallback implements GuiCallback<String> {
 
     private final LayoutAbsoluteFrame frame;
@@ -13,6 +16,13 @@ public class ProcessInfoCallback implements GuiCallback<String> {
 
     @Override
     public void record(String processInfo) {
-        frame.getProcessInfoLabel().setText(processInfo);
+        JLabel processInfoLabel = frame.getProcessInfoLabel();
+        processInfoLabel.setText(processInfo);
+        // processInfoLabel.paintImmediately(0, 0, processInfoLabel.getWidth(), processInfoLabel.getHeight());
+    }
+
+    @Override
+    public void record(List<String> contents) {
+        // Do nothing.
     }
 }
