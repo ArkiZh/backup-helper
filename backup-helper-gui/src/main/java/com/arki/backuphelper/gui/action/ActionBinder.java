@@ -1,5 +1,6 @@
 package com.arki.backuphelper.gui.action;
 
+import com.arki.backuphelper.gui.action.impl.ScanButtonAction;
 import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 
 public class ActionBinder {
@@ -13,7 +14,7 @@ public class ActionBinder {
     public void init() {
         this.frame.getOriginDirChooserButton().addActionListener(new OriginDirChooserAction(this.frame));
         this.frame.getBackupDirChooserButton().addActionListener(new BackupDirChooserAction(this.frame));
-        this.frame.getScanButton().addActionListener(new ScanButtionAction(this.frame));
+        this.frame.getScanButton().addActionListener(new ScanButtonAction(this.frame));
         this.frame.getCancelButton().addActionListener(new CancelButtonAction());
         this.frame.getOriginSynchronizeFilesItem().addActionListener(new OriginSynchronizeFilesItemAction(this.frame));
         this.frame.getOriginOpenCurrentFolderItem().addActionListener(new OriginOpenCurrentFolderItemAction(this.frame));

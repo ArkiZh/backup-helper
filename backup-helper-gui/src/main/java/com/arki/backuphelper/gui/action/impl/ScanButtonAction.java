@@ -1,10 +1,11 @@
-package com.arki.backuphelper.gui.action;
+package com.arki.backuphelper.gui.action.impl;
 
 import com.arki.backuphelper.base.callback.GuiCallback;
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
 import com.arki.backuphelper.base.function.FolderCompare;
 import com.arki.backuphelper.base.utils.FileUtil;
+import com.arki.backuphelper.gui.action.BaseAction;
 import com.arki.backuphelper.gui.callback.DifferenceScannedCallback;
 import com.arki.backuphelper.gui.callback.ProcessInfoCallback;
 import com.arki.backuphelper.gui.callback.TipInfoCallback;
@@ -13,56 +14,21 @@ import com.arki.backuphelper.gui.layiout.LayoutAbsoluteFrame;
 import com.arki.backuphelper.gui.util.ThreadUtil;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-public class ScanButtionAction implements ActionListener {
+public class ScanButtonAction extends BaseAction {
 
-    private LayoutAbsoluteFrame frame;
+    private LayoutAbsoluteFrame frame = this.getFrame();
 
-    public ScanButtionAction(LayoutAbsoluteFrame frame) {
-        this.frame = frame;
+    public ScanButtonAction(LayoutAbsoluteFrame frame) {
+        super(frame, ThreadUtil.ThreadType.SCAN);
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void lockAssociatedResource() {
         // init start options.
-        initScanOptions();
-
-        // start compare.
-        JTextField originDirText = frame.getOriginDirText();
-        final String originPath = originDirText.getText();
-        JTextField backupDirText = frame.getBackupDirText();
-        final String backupPath = backupDirText.getText();
-        final boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
-        final boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
-
-        ThreadUtil.submitTask(new Callable<String>() {
-            @Override
-            public String call() {
-                String retval = "DONE";
-                try {
-                    startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
-                } catch (Exception e) {
-                    frame.getWarnInfoLabel().setText("ERROR: " + e.getClass().getName() + ": " + e.getLocalizedMessage());
-                    e.getClass().getName();
-                    retval = "FAILED";
-                    e.printStackTrace();
-                }
-                resetScanOptions();
-                return retval;
-            }
-        }, ThreadUtil.ThreadType.SCAN);
-
-        // reset start options.
-
-    }
-
-    private void initScanOptions() {
         frame.getOriginDirText().setEnabled(false);
         frame.getOriginDirChooserButton().setEnabled(false);
         frame.getBackupDirText().setEnabled(false);
@@ -74,7 +40,22 @@ public class ScanButtionAction implements ActionListener {
         frame.getOriginResultList().setListData(new Difference[]{});
         frame.getBackupResultList().setListData(new Difference[]{});
     }
-    private void resetScanOptions() {
+
+    @Override
+    public void process() {
+
+        // start compare.
+        JTextField originDirText = frame.getOriginDirText();
+        String originPath = originDirText.getText();
+        JTextField backupDirText = frame.getBackupDirText();
+        String backupPath = backupDirText.getText();
+        boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
+        boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
+        startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
+    }
+
+    @Override
+    public void releaseAssociatedResource() {
         frame.getOriginDirText().setEnabled(true);
         frame.getOriginDirChooserButton().setEnabled(true);
         frame.getBackupDirText().setEnabled(true);
@@ -117,6 +98,12 @@ public class ScanButtionAction implements ActionListener {
         originPath = originPathCanonical;
         backupPath = backupPathCanonical;
 
+        // Ensure the origin's path and the backup's path are different.
+        if (originPath.equals(backupPath)) {
+            warnInfoLabel.setText("Warning: Origin and backup are the same path. No need to compare!");
+            return;
+        }
+
         File originFile = new File(originPath);
         File backupFile = new File(backupPath);
 
@@ -152,5 +139,4 @@ public class ScanButtionAction implements ActionListener {
 
         frame.getProcessInfoLabel().setText(compareStatus.getInfo());
     }
-
 }
