@@ -23,12 +23,14 @@ public class LayoutAbsoluteFrame extends JFrame{
     private final JCheckBox fileNameCheckbox = new JCheckBox("Use file name check.");
     private final JCheckBox fileSizeCheckbox = new JCheckBox("Use file size check.");
     private final JCheckBox fileMd5Checkbox = new JCheckBox("Use MD5 check.");
+    private final JLabel noticeLabel = new JLabel();
     private final JLabel tipLabel = new JLabel("Tip: You can also compare two files to check whether they have the same MD5 digest.");
     private final JButton scanButton = new JButton("Scan");
     private final JButton cancelButton = new JButton("Cancel");
     private final JLabel warnInfoLabel = new JLabel();
     private final JLabel processInfoLabel = new JLabel();
     private final JLabel resultAreaLabel = new JLabel("Scan result:");
+    private final JLabel resultAreaExplainLabel = new JLabel();
     private final JSeparator resultAreaSeparator = new JSeparator();
     // Origin directory contains these files, while backup directory doesn't contain:
     private final JLabel originResultInfoLabel = new JLabel("Backup lacking:");
@@ -73,6 +75,8 @@ public class LayoutAbsoluteFrame extends JFrame{
         boundsMapReverse.put(new int[]{13, 4, 6, 1}, fileSizeCheckbox);
         boundsMapReverse.put(new int[]{20, 4, 6, 1}, fileMd5Checkbox);
 
+        boundsMapReverse.put(new int[]{2, 6, 41, 1}, noticeLabel);
+
         boundsMapReverse.put(new int[]{2, 7, 22, 1}, tipLabel);
         boundsMapReverse.put(new int[]{28, 7, 4, 1}, scanButton);
         boundsMapReverse.put(new int[]{35, 7, 4, 1}, cancelButton);
@@ -82,6 +86,7 @@ public class LayoutAbsoluteFrame extends JFrame{
         boundsMapReverse.put(new int[]{2, 9, 41, 1}, processInfoLabel);
 
         boundsMapReverse.put(new int[]{2, 11, 4, 1}, resultAreaLabel);
+        boundsMapReverse.put(new int[]{6, 11, 37, 1}, resultAreaExplainLabel);
         boundsMapReverse.put(new int[]{6, 12, 37, 1}, resultAreaSeparator);
 
         boundsMapReverse.put(new int[]{2, 12, 19, 1}, originResultInfoLabel);
@@ -110,6 +115,10 @@ public class LayoutAbsoluteFrame extends JFrame{
         //------------------------ Row start------------------------------
         fileNameCheckbox.setSelected(true);
         fileNameCheckbox.setEnabled(false);
+        //------------------------ Row end  ------------------------------
+
+        //------------------------ Row start------------------------------
+        noticeLabel.setForeground(Color.GREEN);
         //------------------------ Row end  ------------------------------
 
         //------------------------ Row start------------------------------
@@ -202,6 +211,10 @@ public class LayoutAbsoluteFrame extends JFrame{
         return fileMd5Checkbox;
     }
 
+    public JLabel getNoticeLabel() {
+        return noticeLabel;
+    }
+
     public JLabel getTipLabel() {
         return tipLabel;
     }
@@ -224,6 +237,10 @@ public class LayoutAbsoluteFrame extends JFrame{
 
     public JLabel getResultAreaLabel() {
         return resultAreaLabel;
+    }
+
+    public JLabel getResultAreaExplainLabel() {
+        return resultAreaExplainLabel;
     }
 
     public JSeparator getResultAreaSeparator() {
@@ -312,7 +329,7 @@ public class LayoutAbsoluteFrame extends JFrame{
                 @Override
                 public Component getListCellRendererComponent(JList<? extends Difference> list, Difference difference, int index, boolean isSelected, boolean cellHasFocus) {
 
-                    JLabel jLabel = new JLabel(difference.getFileInfo().getCanonicalPath());
+                    JLabel jLabel = new JLabel(difference.getRelativePath());
                     // Set item color according to selected, diff-type. Focus has no effect here.
                     if (isSelected){
                         jLabel.setBackground(Color.LIGHT_GRAY);

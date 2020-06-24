@@ -38,7 +38,12 @@ public class FolderCompare {
     private GuiCallback<String> showWarnInfoCallback;
     private GuiCallback<String> showProcessInfoCallback;
     private GuiCallback<Difference> showDifferenceScannedCallback;
-    public FolderCompare(Map<GuiCallback.RecordType, GuiCallback> guiCallBacks) {
+    private String originPath;
+    private String backupPath;
+
+    public FolderCompare(String originPath, String backupPath, Map<GuiCallback.RecordType, GuiCallback> guiCallBacks) {
+        this.originPath = originPath;
+        this.backupPath = backupPath;
         this.showWarnInfoCallback = guiCallBacks.get(GuiCallback.RecordType.WARN_INFO);
         this.showProcessInfoCallback = guiCallBacks.get(GuiCallback.RecordType.PROCESS_INFO);
         this.showDifferenceScannedCallback = guiCallBacks.get(GuiCallback.RecordType.DIFFERENCE_SCANNED);
@@ -78,8 +83,8 @@ public class FolderCompare {
                         if (origin.getSize() != backup.getSize()) {
                             // Find different size.
                             List<Difference> sizeDifferences = new ArrayList<>();
-                            sizeDifferences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE));
-                            sizeDifferences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE));
+                            sizeDifferences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_SIZE, this.originPath));
+                            sizeDifferences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_SIZE, this.backupPath));
                             this.showDifferenceScannedCallback.record(sizeDifferences);
                             return CompareStatus.SUCCESS;
                         }
@@ -90,8 +95,8 @@ public class FolderCompare {
                         if (!origin.getMd5().equals(backup.getMd5())) {
                             // Find different MD5.
                             List<Difference> md5Differences = new ArrayList<>();
-                            md5Differences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5));
-                            md5Differences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5));
+                            md5Differences.add(new Difference(origin, Difference.CAMP_ORIGIN, Difference.DIFF_MD5, this.originPath));
+                            md5Differences.add(new Difference(backup, Difference.CAMP_BACKUP, Difference.DIFF_MD5, this.backupPath));
                             this.showDifferenceScannedCallback.record(md5Differences);
                             return CompareStatus.SUCCESS;
                         }
@@ -139,11 +144,11 @@ public class FolderCompare {
                         List<Difference> redundantDifferences = new ArrayList<>();
                         for (int i = 0; i < originChildrenRedundant.size(); i++) {
                             FileInfo fileInfo = new FileInfo(new File(origin.getCanonicalPath(), originChildrenRedundant.get(i)), origin, useSize, false, false);
-                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT));
+                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_ORIGIN, Difference.DIFF_REDUNDANT, this.originPath));
                         }
                         for (int i = 0; i < backupChildren.size(); i++) {
                             FileInfo fileInfo = new FileInfo(new File(backup.getCanonicalPath(), backupChildren.get(i)), origin, useSize, false, false);
-                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT));
+                            redundantDifferences.add(new Difference(fileInfo, Difference.CAMP_BACKUP, Difference.DIFF_REDUNDANT, this.backupPath));
                         }
                         this.showDifferenceScannedCallback.record(redundantDifferences);
 

@@ -4,6 +4,7 @@ import com.arki.backuphelper.base.callback.GuiCallback;
 import com.arki.backuphelper.base.entity.Difference;
 import com.arki.backuphelper.base.entity.FileInfo;
 import com.arki.backuphelper.base.function.FolderCompare;
+import com.arki.backuphelper.base.utils.FileUtil;
 import com.arki.backuphelper.gui.callback.DifferenceScannedCallback;
 import com.arki.backuphelper.gui.callback.ProcessInfoCallback;
 import com.arki.backuphelper.gui.callback.TipInfoCallback;
@@ -81,16 +82,32 @@ public class ScanButtionAction implements ActionListener {
         String warnInfo = "";
         // Ensure dir not empty.
         if ("".equals(originPath.trim())) {
-            warnInfo = "Please choose directory for: Origin directory";
+            warnInfo = "Warning: Please choose directory for: Origin directory";
         }
         if ("".equals(backupPath.trim())) {
-            warnInfo = "".equals(warnInfo) ? "Please choose directory for: Backup directory" : warnInfo + " | Backup directory";
+            warnInfo = "".equals(warnInfo) ? "Warning: Please choose directory for: Backup directory" : warnInfo + " | Backup directory";
         }
         if (!"".equals(warnInfo)) {
             warnInfoLabel.setText(warnInfo);
             return;
         }
 
+        // Ensure path to be standard. Show the change in noticeLabel if different.
+        String originPathCanonical = FileUtil.getCanonicalPath(new File(originPath));
+        String backupPathCanonical = FileUtil.getCanonicalPath(new File(backupPath));
+        String noticeInfo = "";
+        if (!originPath.equals(originPathCanonical)) {
+            noticeInfo = "Notice: Convert original path to " + originPathCanonical;
+        }
+        if (!backupPath.equals(backupPathCanonical)) {
+            noticeInfo = "".equals(noticeInfo) ? "Notice: Convert backup path to " + backupPathCanonical : noticeInfo + " | backup path to " + backupPathCanonical;
+        }
+        if (!"".equals(noticeInfo)) {
+            JLabel noticeLabel = frame.getNoticeLabel();
+            noticeLabel.setText(noticeInfo);
+        }
+        originPath = originPathCanonical;
+        backupPath = backupPathCanonical;
 
         File originFile = new File(originPath);
         File backupFile = new File(backupPath);
@@ -117,8 +134,14 @@ public class ScanButtionAction implements ActionListener {
         guiCallbacks.put(GuiCallback.RecordType.PROCESS_INFO, new ProcessInfoCallback(frame));
         guiCallbacks.put(GuiCallback.RecordType.DIFFERENCE_SCANNED, new DifferenceScannedCallback(frame));
 
-        FolderCompare folderCompare = new FolderCompare(guiCallbacks);
+        FolderCompare folderCompare = new FolderCompare(originPath, backupPath, guiCallbacks);
         FolderCompare.CompareStatus compareStatus = folderCompare.compareFileInfo(originFileInfo, backupFileInfo, useFileSizeFlag, useFileMD5Flag);
+        if ("dir".equals(originFileInfo.getType())) {
+            frame.getTipLabel().setText("Tip: Result area shows the relative paths. PINK if different in size, and RED if different in MD5.");
+        } else {
+            frame.getTipLabel().setText("Tip: In result area, background color is PINK if different in size, and RED if different in MD5.");
+        }
+
         frame.getProcessInfoLabel().setText(compareStatus.getInfo());
     }
 

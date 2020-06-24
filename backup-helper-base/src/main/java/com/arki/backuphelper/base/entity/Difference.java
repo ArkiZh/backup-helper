@@ -9,15 +9,23 @@ public class Difference {
     private FileInfo fileInfo;
     private int camp;
     private int code;
+    private String basePath;
 
-    public Difference(FileInfo fileInfo, int camp, int code) {
+    public Difference(FileInfo fileInfo, int camp, int code, String basePath) {
         this.fileInfo = fileInfo;
         this.camp = camp;
         this.code = code;
+        this.basePath = basePath;
     }
 
     public FileInfo getFileInfo() {
         return fileInfo;
+    }
+
+    public String getRelativePath() {
+        String canonicalPath = this.getFileInfo().getCanonicalPath();
+        String basePath = this.getBasePath();
+        return canonicalPath.equals(basePath) ? canonicalPath : canonicalPath.substring(basePath.length()+1);
     }
 
     public void setFileInfo(FileInfo fileInfo) {
@@ -38,5 +46,13 @@ public class Difference {
 
     public void setCode(int code) {
         this.code = code;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 }
