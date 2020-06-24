@@ -44,9 +44,17 @@ public class ScanButtionAction implements ActionListener {
         ThreadUtil.submitTask(new Callable<String>() {
             @Override
             public String call() {
-                startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
+                String retval = "DONE";
+                try {
+                    startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
+                } catch (Exception e) {
+                    frame.getWarnInfoLabel().setText("ERROR: " + e.getClass().getName() + ": " + e.getLocalizedMessage());
+                    e.getClass().getName();
+                    retval = "FAILED";
+                    e.printStackTrace();
+                }
                 resetScanOptions();
-                return "DONE";
+                return retval;
             }
         }, ThreadUtil.ThreadType.SCAN);
 

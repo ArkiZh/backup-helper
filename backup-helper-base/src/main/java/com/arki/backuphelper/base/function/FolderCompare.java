@@ -66,9 +66,10 @@ public class FolderCompare {
             return CompareStatus.INTERRUPTED_BY_CANCEL;
         }
 
-        this.showProcessInfoCallback.record("Comparing: " + origin.getCanonicalPath() + " <=====> " + backup.getCanonicalPath());
+        String originFileRelativePath = this.originPath.equals(origin.getCanonicalPath()) ? "." : origin.getCanonicalPath().substring(this.originPath.length() + 1);
+        String backupFileRelativePath = this.backupPath.equals(backup.getCanonicalPath()) ? "." : backup.getCanonicalPath().substring(this.backupPath.length() + 1);
+        this.showProcessInfoCallback.record("Comparing: " + originFileRelativePath + " <=====> " + backupFileRelativePath);
         try {
-
             if (!origin.sameType(backup)) {
                 // origin and backup are not the same type.
                 String warnInfo = "dir".equals(origin.getType())
