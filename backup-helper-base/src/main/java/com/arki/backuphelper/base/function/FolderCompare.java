@@ -12,10 +12,10 @@ import java.util.Map;
 public class FolderCompare {
 
     public enum CompareStatus {
-        SUCCESS(1, "Comparision is done successfully."),
-        INTERRUPTED_BY_CANCEL(0, "The comparision has been cancelled."),
-        INTERRUPTED_BY_INTENTION(-1, "The comparision has been interrupted, according to the preconditions."),
-        INTERRUPTED_UNEXPECTED(-2, "The comparision has been interrupted unexpected!"),
+        SUCCESS(1, "Comparison is done successfully."),
+        INTERRUPTED_BY_CANCEL(0, "The Comparison has been cancelled."),
+        INTERRUPTED_BY_INTENTION(-1, "The Comparison has been interrupted, according to the preconditions."),
+        INTERRUPTED_UNEXPECTED(-2, "The Comparison has been interrupted unexpected!"),
         ;
 
         private int code;

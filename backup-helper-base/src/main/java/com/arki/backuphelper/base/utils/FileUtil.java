@@ -85,6 +85,12 @@ public class FileUtil {
 
     public static boolean copyFileOrDir(File origin, File target, CopyOption copyOption) {
         System.out.println("Copying: " + origin.getAbsolutePath() + " -> " + target.getAbsolutePath());
+
+        if (Thread.currentThread().isInterrupted()) { // Check whether the thread has been interrupted.
+            System.out.println("Stop copying due to interruption signal.");
+            return false;
+        }
+
         try {
             if (origin.isDirectory()) {
                 copyDirectory(origin, target, copyOption.copyDate, copyOption.overwrite);
@@ -140,18 +146,17 @@ public class FileUtil {
         File[] listFiles = origin.listFiles();
         if (listFiles != null) {
             for (File file : listFiles) {
-                if (file.isDirectory()) {
-                    copyDirectory(file, new File(target, file.getName()), copyDate, overwrite);
-                } else {
-                    copyFile(file, new File(target, file.getName()), copyDate, overwrite);
-                }
+                copyFileOrDir(file, new File(target, file.getName()), new CopyOption(copyDate, overwrite));
             }
         } else {
             throw new BaseException("Failed to list directory: " + origin.getAbsolutePath());
         }
 
         if (newDir && copyDate) {
-            target.setLastModified(origin.lastModified());
+            boolean setSuccess = target.setLastModified(origin.lastModified());
+            if (!setSuccess) {
+                System.out.println("Failed to set last modified time: "+targetCanonicalPath);
+            }
         }
     }
 

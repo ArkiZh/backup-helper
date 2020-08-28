@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 public class ThreadUtil {
 
     public enum ThreadType {
-        SCAN
+        SCAN, SYNCHRONIZE
     }
 
     static{
@@ -23,7 +23,7 @@ public class ThreadUtil {
                     }
                 }
             }
-        }, "DaemonThreadCleanThreadMap");
+        }, "DaemonThread_CleanThreadMap");
         thread.start();
     }
 

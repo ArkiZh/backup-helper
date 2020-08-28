@@ -20,8 +20,6 @@ import java.util.Map;
 
 public class ScanButtonAction extends BaseAction {
 
-    private LayoutAbsoluteFrame frame = this.getFrame();
-
     public ScanButtonAction(LayoutAbsoluteFrame frame) {
         super(frame, ThreadUtil.ThreadType.SCAN);
     }
@@ -29,44 +27,44 @@ public class ScanButtonAction extends BaseAction {
     @Override
     public void lockAssociatedResource() {
         // init start options.
-        frame.getOriginDirText().setEnabled(false);
-        frame.getOriginDirChooserButton().setEnabled(false);
-        frame.getBackupDirText().setEnabled(false);
-        frame.getBackupDirChooserButton().setEnabled(false);
-        frame.getFileSizeCheckbox().setEnabled(false);
-        frame.getFileMd5Checkbox().setEnabled(false);
-        frame.getScanButton().setEnabled(false);
-        frame.getWarnInfoLabel().setText("");
-        frame.getOriginResultList().setListData(new Difference[]{});
-        frame.getBackupResultList().setListData(new Difference[]{});
+        this.getFrame().getOriginDirText().setEnabled(false);
+        this.getFrame().getOriginDirChooserButton().setEnabled(false);
+        this.getFrame().getBackupDirText().setEnabled(false);
+        this.getFrame().getBackupDirChooserButton().setEnabled(false);
+        this.getFrame().getFileSizeCheckbox().setEnabled(false);
+        this.getFrame().getFileMd5Checkbox().setEnabled(false);
+        this.getFrame().getScanButton().setEnabled(false);
+        this.getFrame().getWarnInfoLabel().setText("");
+        this.getFrame().getOriginResultList().setListData(new Difference[]{});
+        this.getFrame().getBackupResultList().setListData(new Difference[]{});
     }
 
     @Override
     public void process() {
 
         // start compare.
-        JTextField originDirText = frame.getOriginDirText();
+        JTextField originDirText = this.getFrame().getOriginDirText();
         String originPath = originDirText.getText();
-        JTextField backupDirText = frame.getBackupDirText();
+        JTextField backupDirText = this.getFrame().getBackupDirText();
         String backupPath = backupDirText.getText();
-        boolean useFileSizeFlag = frame.getFileSizeCheckbox().isSelected();
-        boolean useFileMD5Flag = frame.getFileMd5Checkbox().isSelected();
+        boolean useFileSizeFlag = this.getFrame().getFileSizeCheckbox().isSelected();
+        boolean useFileMD5Flag = this.getFrame().getFileMd5Checkbox().isSelected();
         startCompare(originPath, backupPath, useFileSizeFlag, useFileMD5Flag);
     }
 
     @Override
     public void releaseAssociatedResource() {
-        frame.getOriginDirText().setEnabled(true);
-        frame.getOriginDirChooserButton().setEnabled(true);
-        frame.getBackupDirText().setEnabled(true);
-        frame.getBackupDirChooserButton().setEnabled(true);
-        frame.getFileSizeCheckbox().setEnabled(true);
-        frame.getFileMd5Checkbox().setEnabled(true);
-        frame.getScanButton().setEnabled(true);
+        this.getFrame().getOriginDirText().setEnabled(true);
+        this.getFrame().getOriginDirChooserButton().setEnabled(true);
+        this.getFrame().getBackupDirText().setEnabled(true);
+        this.getFrame().getBackupDirChooserButton().setEnabled(true);
+        this.getFrame().getFileSizeCheckbox().setEnabled(true);
+        this.getFrame().getFileMd5Checkbox().setEnabled(true);
+        this.getFrame().getScanButton().setEnabled(true);
     }
 
     private void startCompare(String originPath, String backupPath, boolean useFileSizeFlag, boolean useFileMD5Flag) {
-        JLabel warnInfoLabel = frame.getWarnInfoLabel();
+        JLabel warnInfoLabel = this.getFrame().getWarnInfoLabel();
         warnInfoLabel.setText("");
         String warnInfo = "";
         // Ensure dir not empty.
@@ -92,7 +90,7 @@ public class ScanButtonAction extends BaseAction {
             noticeInfo = "".equals(noticeInfo) ? "Notice: Convert backup path to " + backupPathCanonical : noticeInfo + " | backup path to " + backupPathCanonical;
         }
         if (!"".equals(noticeInfo)) {
-            JLabel noticeLabel = frame.getNoticeLabel();
+            JLabel noticeLabel = this.getFrame().getNoticeLabel();
             noticeLabel.setText(noticeInfo);
         }
         originPath = originPathCanonical;
@@ -124,19 +122,19 @@ public class ScanButtonAction extends BaseAction {
         FileInfo backupFileInfo = new FileInfo(backupFile, useFileSizeFlag, useFileMD5Flag);
 
         Map<GuiCallback.RecordType, GuiCallback> guiCallbacks = new HashMap<>();
-        guiCallbacks.put(GuiCallback.RecordType.TIP_INFO, new TipInfoCallback(frame));
-        guiCallbacks.put(GuiCallback.RecordType.WARN_INFO, new WarnInfoCallback(frame));
-        guiCallbacks.put(GuiCallback.RecordType.PROCESS_INFO, new ProcessInfoCallback(frame));
-        guiCallbacks.put(GuiCallback.RecordType.DIFFERENCE_SCANNED, new DifferenceScannedCallback(frame));
+        guiCallbacks.put(GuiCallback.RecordType.TIP_INFO, new TipInfoCallback(this.getFrame()));
+        guiCallbacks.put(GuiCallback.RecordType.WARN_INFO, new WarnInfoCallback(this.getFrame()));
+        guiCallbacks.put(GuiCallback.RecordType.PROCESS_INFO, new ProcessInfoCallback(this.getFrame()));
+        guiCallbacks.put(GuiCallback.RecordType.DIFFERENCE_SCANNED, new DifferenceScannedCallback(this.getFrame()));
 
         FolderCompare folderCompare = new FolderCompare(originPath, backupPath, guiCallbacks);
         FolderCompare.CompareStatus compareStatus = folderCompare.compareFileInfo(originFileInfo, backupFileInfo, useFileSizeFlag, useFileMD5Flag);
         if ("dir".equals(originFileInfo.getType())) {
-            frame.getTipLabel().setText("Tip: Result area shows the relative paths. PINK if different in size, and RED if different in MD5.");
+            this.getFrame().getTipLabel().setText("Tip: Result area shows the relative paths. PINK if different in size, and RED if different in MD5.");
         } else {
-            frame.getTipLabel().setText("Tip: In result area, background color is PINK if different in size, and RED if different in MD5.");
+            this.getFrame().getTipLabel().setText("Tip: In result area, background color is PINK if different in size, and RED if different in MD5.");
         }
 
-        frame.getProcessInfoLabel().setText(compareStatus.getInfo());
+        this.getFrame().getProcessInfoLabel().setText(compareStatus.getInfo());
     }
 }

@@ -9,8 +9,8 @@ import java.util.concurrent.Callable;
 
 public abstract class BaseAction  implements ActionListener {
 
-    private LayoutAbsoluteFrame frame;
-    private ThreadUtil.ThreadType threadType;
+    private final LayoutAbsoluteFrame frame;
+    private final ThreadUtil.ThreadType threadType;
 
     public BaseAction(LayoutAbsoluteFrame frame, ThreadUtil.ThreadType threadType) {
         this.frame = frame;
@@ -27,7 +27,7 @@ public abstract class BaseAction  implements ActionListener {
                 try {
                     process();
                 } catch (Exception e1) {
-                    frame.getWarnInfoLabel().setText("ERROR: " + e.getClass().getName() + ": " + e1.getLocalizedMessage());
+                    frame.getWarnInfoLabel().setText("ERROR: " + e1.getClass().getName() + ": " + e1.getLocalizedMessage());
                     retval = "FAILED";
                     e1.printStackTrace();
                 }
